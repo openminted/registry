@@ -65,9 +65,9 @@ public class DumpResourcePartitioner extends AbstractDao<Resource> implements Pa
         } else {
             IntStream.range(0,partitions).map(x -> x * diff).forEach(from -> {
                 ExecutionContext context = new ExecutionContext();
-                int to = from + diff - 1;
+                int to = from + diff;
                 context.putInt("from",from);
-                context.putInt("to",(to >= size) ? size -1 : to);
+                context.putInt("to",(to >= size) ? size : to);
                 context.putString("resourceType",resourceType);
                 versionMap.put(String.format("%s[%d-%d]",resourceType,from,to),context);
             });
