@@ -84,7 +84,7 @@ public class ViewDaoImpl extends AbstractDao<Version> implements ViewDao {
             }
 
             String queryString = "";
-            queryString = queryString.concat("CREATE OR REPLACE VIEW " + resourceType.getName() + "_view AS (");
+            queryString = queryString.concat("CREATE MATERIALIZED VIEW " + resourceType.getName() + "_view AS (");
             queryString = queryString.concat("SELECT * FROM (select id, creation_date, modification_date from resource where fk_name='" + resourceType.getName() + "') r");
 
             // setup query for single-valued indices
@@ -171,6 +171,10 @@ public class ViewDaoImpl extends AbstractDao<Version> implements ViewDao {
                 getEntityManager().joinTransaction();
                 query.executeUpdate();
             } catch (Exception e) {
+                if(e.getMessage().equals("relation "+resourceType.getName()+"_view already exists")) {
+                    deleteView(resourceType.getName());
+                    createView(resourceType);
+                }
                 logger.info("View was not created",e);
             }
         }
@@ -179,10 +183,18 @@ public class ViewDaoImpl extends AbstractDao<Version> implements ViewDao {
 	@Override
 	public void deleteView(String resourceType) {
 	    logger.info("Deleting view ");
-	    getEntityManager().joinTransaction();
-		getEntityManager().createNativeQuery("DROP VIEW IF EXISTS "+resourceType+"_view").executeUpdate();
-		getEntityManager().flush();
-	}
+        getEntityManager().joinTransaction();
+        getEntityManager().createNativeQuery("DROP MATERIALIZED VIEW IF EXISTS " + resourceType + "_view").executeUpdate();
+        getEntityManager().flush();
+    }
+
+    @Override
+    public void updateView(String resourceType) {
+        logger.info("Updating the view ");
+        getEntityManager().joinTransaction();
+        getEntityManager().createNativeQuery("REFRESH MATERIALIZED VIEW " + resourceType + "_view").executeUpdate();
+        getEntityManager().flush();
+    }
 
 
 }

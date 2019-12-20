@@ -8,5 +8,7 @@ public interface ViewService {
 
 	void deleteView(String resourceType);
 
+	void updateView(String resourceType);
+
 }
 

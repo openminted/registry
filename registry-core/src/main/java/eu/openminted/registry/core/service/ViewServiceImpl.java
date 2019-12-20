@@ -24,5 +24,10 @@ public class ViewServiceImpl implements ViewService {
         viewDao.deleteView(resourceType);
     }
 
+    @Override
+    public void updateView(String resourceType) {
+        viewDao.updateView(resourceType);
+    }
+
 }
 

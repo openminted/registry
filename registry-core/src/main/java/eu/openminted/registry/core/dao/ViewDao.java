@@ -8,4 +8,6 @@ public interface ViewDao {
 
     void deleteView(String resourceType);
 
+    void updateView(String resourceType);
+
 }

@@ -2,6 +2,7 @@ package eu.openminted.registry.core.backup.restore;
 
 import eu.openminted.registry.core.dao.ResourceDao;
 import eu.openminted.registry.core.dao.VersionDao;
+import eu.openminted.registry.core.dao.ViewDao;
 import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.domain.ResourceType;
 import eu.openminted.registry.core.elasticsearch.service.ElasticOperationsService;
@@ -34,17 +35,21 @@ public class RestoreResourceWriterStep implements ItemWriter<Resource>, StepExec
 
     private VersionDao versionDao;
 
+    private ViewDao viewDao;
+
     private ElasticOperationsService elasticOperationsService;
 
     @Autowired
     public RestoreResourceWriterStep(ResourceService resourceService,
                                      ResourceDao resourceDao,
                                      VersionDao versionDao,
-                                     ElasticOperationsService elasticOperationsService) {
+                                     ElasticOperationsService elasticOperationsService,
+                                     ViewDao viewDao) {
         this.resourceService = resourceService;
         this.resourceDao = resourceDao;
         this.versionDao = versionDao;
         this.elasticOperationsService = elasticOperationsService;
+        this.viewDao=viewDao;
     }
 
     @Override
@@ -78,6 +83,8 @@ public class RestoreResourceWriterStep implements ItemWriter<Resource>, StepExec
                 resources.add(addedResource);
 
             }
+            if(resources.size()>0)
+                viewDao.updateView(resources.get(0).getResourceTypeName());
             elasticOperationsService.addBulk(resources);
         } catch (Exception e) {
             logger.info(e.getMessage(),e);
